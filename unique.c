@@ -1,56 +1,58 @@
 #define _GNU_SOURCE
-//fdd this line ixes comments
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// Open file or set to read from stdin
 int openFile(int argc, char *argv[], FILE **fp) {
     if (argc > 1) {
-        *fp = fopen(argv[1], "r"); // Open file 
+        *fp = fopen(argv[1], "r");
         if (*fp == NULL) {
-            perror("Can't open file"); // Print error if file can't open
-            return 1; // Return error
+            perror("Can't open file");
+            return 1;
         }
     } else {
-       *fp = stdin; // Use stin if no file
+       *fp = stdin;
     }
-    return 0; // returned well
+    return 0;
 }
 
+// Print unique lines from file or stdin
 int printLine(FILE *fp) {
-    char *line = NULL; // line pointer to NULL
-    char *prevLine = NULL; // previous line pointer to NULL
-    size_t length = 0; // length for getline
-    ssize_t read; // store read status
+    char *line = NULL;
+    char *prevLine = NULL;
+    size_t length = 0;
+    ssize_t read;
 
-    while ((read = getline(&line, &length, fp)) != -1) { // Read lines until end of file
-        if (prevLine == NULL || strcmp(line, prevLine) != 0) { // Check if line is different from before
-            printf("%s", line); // Print line
-            free(prevLine); // Free 
-            prevLine = strdup(line); // Duplicate current line to prevLine
+    while ((read = getline(&line, &length, fp)) != -1) {
+        if (prevLine == NULL || strcmp(line, prevLine) != 0) {
+            printf("%s", line);
+            free(prevLine);
+            prevLine = strdup(line);
             if (prevLine == NULL) {
-                perror("error"); // Print error if strdup fails
-                free(line); // Free line before returning
-                return 1; // Return 1 to indicate error
+                perror("error");
+                free(line);
+                return 1;
             }
         }
     }
 
-    free(line); // Free line 
-    free(prevLine); // Free prev line
+    free(line);
+    free(prevLine);
     return 0;
 }
 
+// Main function: handles file operations
 int main(int argc, char *argv[]) {
-    FILE *fp; // Declare FILE pointer
-    if (openFile(argc, argv, &fp) != 0) { // Open file
-        return 1; // Return 1 if file cannot be opened
+    FILE *fp;
+    if (openFile(argc, argv, &fp) != 0) {
+        return 1;
     }
    printLine(fp);
 
     if (fp != stdin) {
-        fclose(fp); // Close file if not stdin
+        fclose(fp);
     }
 
-    return 0; // works
+    return 0;
 }
