@@ -1,54 +1,28 @@
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
-// Open file or set to read from stdin
-int openFile(int argc, char *argv[], FILE **fp) {
+#define MAX_LINE_LENGTH 1000
+
+int main(int argc, char *argv[]) {
+    FILE *fp = stdin;
+    char line[MAX_LINE_LENGTH];
+    char prevLine[MAX_LINE_LENGTH] = "";
+
     if (argc > 1) {
-        *fp = fopen(argv[1], "r");
-        if (*fp == NULL) {
-            perror("Can't open file");
+        fp = fopen(argv[1], "r");
+        if (fp == NULL) {
+            fprintf(stderr, "Can't open file: %s\n", argv[1]);
             return 1;
         }
-    } else {
-       *fp = stdin;
     }
-    return 0;
-}
 
-// Print unique lines from file or stdin
-int printLine(FILE *fp) {
-    char *line = NULL;
-    char *prevLine = NULL;
-    size_t length = 0;
-    ssize_t read;
-
-    while ((read = getline(&line, &length, fp)) != -1) {
-        if (prevLine == NULL || strcmp(line, prevLine) != 0) {
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        if (strcmp(line, prevLine) != 0) {
             printf("%s", line);
-            free(prevLine);
-            prevLine = strdup(line);
-            if (prevLine == NULL) {
-                perror("error");
-                free(line);
-                return 1;
-            }
+            strcpy(prevLine, line);
         }
     }
-
-    free(line);
-    free(prevLine);
-    return 0;
-}
-
-// Main function: handles file operations
-int main(int argc, char *argv[]) {
-    FILE *fp;
-    if (openFile(argc, argv, &fp) != 0) {
-        return 1;
-    }
-   printLine(fp);
 
     if (fp != stdin) {
         fclose(fp);
