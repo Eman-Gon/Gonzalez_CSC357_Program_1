@@ -1,13 +1,13 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <ctype.h>
-
 #define MAX_LINE_LENGTH 1000
 
 int main(int argc, char *argv[]) {
     FILE *fp = stdin;
     char line[MAX_LINE_LENGTH];
     int lines = 0, chars = 0, words = 0, counter = 0;
+    int first_line = 1;
 
     if (argc > 1) {
         fp = fopen(argv[1], "r");
@@ -18,11 +18,16 @@ int main(int argc, char *argv[]) {
     }
 
     while (fgets(line, sizeof(line), fp) != NULL) {
+        if (first_line) {
+            first_line = 0;
+        } else {
+            lines++; 
+        }
         for (int i = 0; line[i] != '\0'; i++) {
-        chars++;
-            if (isspace(line[i]) || line[i] == '\n') {
-        if (counter) {
-               words++;
+            chars++; 
+            if (isspace(line[i])) {
+                if (counter) {
+                    words++;
                     counter = 0;
                 }
             } else {
@@ -30,13 +35,9 @@ int main(int argc, char *argv[]) {
             }
         }
         if (counter) {
-                   words++;
+            words++;
             counter = 0;
         }
-    }
-
-    if (chars > 0) {
-        lines = 1;
     }
 
     printf("%d\t%d\t%d\n", lines, words, chars);
